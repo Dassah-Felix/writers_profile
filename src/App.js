@@ -1,48 +1,35 @@
 import ProfileCard from './components/ProfileCard';
 
-import React, { Component } from 'react';
+import React, {useState} from 'react';
 
- class App extends Component {
-constructor() {
-super ();
-
-this.handleClick =this.handleClick.bind(this);
-this.state ={
-writers:{
-loading: false,
+function App() {
+const[writers, setWriters]=useState({
+loading: false, 
 list:[]
-}
+});
+ 
+const handleClick = ()=>{
+setWriters((previousState)=>({
+...previousState,
+loading:true
+}))
+setTimeout(async () =>{
+let resp = await fetch("/writers.json");
+let result = await resp.json();
+
+setWriters((previousState)=>({
+  ...previousState,
+  loading:false,
+  list:result
+}));
+}, 2500)
 };
 
-}
-handleClick(){
-this.setState({writers:
-{
-  loading:true
-}});
 
-setTimeout(async()=>{
-  let resp = await fetch("/writers.json");
-  let result = await resp. json();
-  
-
-  this.setState({
-writers:{
-  loading:false,
-  list: result
-}
-  });
-}, 3500);
-}
-
-render() {
-  const {
-    writers:{loading, list}
-  }= this.state;
-  if  (loading){
+  if  (writers.loading){
     return(
-      <div>
-      <h1>Writers Profile</h1>
+<div>
+<h1>Writers Profile</h1>
 <div className='container'>
 <div className='card action'>
 <p className='infoText'>Loading...</p>
@@ -57,13 +44,13 @@ render() {
       <h1>Writers Profile</h1>
       <div className='container'>
       
-    {list.length === 0 ? (
+    {writers.list.length === 0 ? (
  <div className='card action'>
  <p className='infoText'>Oops... no writer profile found</p>
-<button className='actionBtn' onClick={this.handleClick}>Get Writers</button>
+<button className='actionBtn' onClick={handleClick}>Get Writers</button>
       </div>
     ):(
-list.map((writer) =>(
+writers.list.map((writer) =>(
   <ProfileCard key={writer.id} writer={writer}/>
 ))
     )}
@@ -72,6 +59,7 @@ list.map((writer) =>(
       
         </div>
     );
-  }
-}
+
+  };
+
 export default App;
